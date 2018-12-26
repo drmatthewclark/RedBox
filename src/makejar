@@ -1,0 +1,5 @@
+#!/bin/bash 
+
+javac RedBox/*java cipher/*.java prng/*.java random/*.java
+jar -cvfm   RedBox7Nov17.jar META-INF/MANIFEST.MF    RedBox/*.class cipher/*.class prng/*.class random/*.class
+#find ./ -name \*.class -exec rm {} \;
