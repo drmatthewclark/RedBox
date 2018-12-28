@@ -65,7 +65,7 @@ public abstract class ExtendedRandom extends Random {
 		long result = 0;
 		
 		for(int i = 0; i < Math.min(8, bytes.length); i++) {
-			result |= (long)(bytes[i] & 0xFF ) << (i*8) % 64;
+			result |= (long)(bytes[i] & 0xFF ) << ((i*8) % 56);
 		}
 
 		return result;
@@ -109,6 +109,7 @@ public abstract class ExtendedRandom extends Random {
 		long result = hash * hash * hash * hash * hash;
 		return result;
 	}
+	
 	/**
 	 * default set seed with array input.. Convert array to long.  Methods that allow more
 	 * entropy will override this method.

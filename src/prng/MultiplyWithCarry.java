@@ -24,7 +24,7 @@ public class MultiplyWithCarry extends ExtendedRandom {
 	protected final int next(int bits) {
 
 		seed = (multiplier * (seed & 0xffffffffL)) + (seed >>> 32);
-		return (int)(seed >>> (64 - bits));
+		return (int)(seed >>> (32 - bits));
 	}
 
 }

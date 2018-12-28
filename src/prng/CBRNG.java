@@ -55,7 +55,12 @@ public class CBRNG extends ExtendedRandom {
 	private long counter = Long.MIN_VALUE;
 	
 	private byte[] seed = new byte[KEYLEN];
-	private static final byte[] initializationVector = new byte[KEYLEN];
+	
+	// static IV. this shouldn't be a problem for this application. The values
+	// are changed by the setSeed function.
+	private static final byte[] initializationVector = 
+			{ -32, 31, 0, 54, 59, 120, 3, -17, 7, 9, 67, 45, -117, 53, -9, -107 };
+	
 	
 	CBRNG() {
 		
@@ -116,12 +121,16 @@ public class CBRNG extends ExtendedRandom {
 		if (seed == null) seed = new byte[KEYLEN];
 		System.arraycopy(newSeed, 0, seed, 0, Math.min(seed.length, newSeed.length));
 		
+		// modify IV to be not equal for each reseed.
+		initializationVector[15] = newSeed[0];
+		
 		try {
 			// reinitialize cipher
 			cipher = getCipher(Cipher.ENCRYPT_MODE, seed, initializationVector);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(501);
 		} 
 	}
 
