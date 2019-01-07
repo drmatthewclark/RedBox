@@ -48,7 +48,7 @@ public class BlumBlumShub extends ExtendedRandom {
 	protected synchronized final int next(int bits) {
 
 		seed = (seed * seed) % M;
-		return (int) (seed >>> (32 - bits));
+		return (int) (seed >>> (48 - bits));
 	}
 
 }
