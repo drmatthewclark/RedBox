@@ -4,7 +4,7 @@ package prng;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Random;
+
 
 /**
  * Multirandom uses a variable number of random number generators, and for each call for a random number one of the generators
@@ -26,8 +26,6 @@ import java.util.Random;
  */
 public class MultiRandom extends ExtendedRandom {
 
-
-	private static final long serialVersionUID = -2821802106204980544L;
 	
 	/*
 	 * mask for absolute value of an integer
@@ -50,6 +48,7 @@ public class MultiRandom extends ExtendedRandom {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
+
 	private static final Class<? extends ExtendedRandom>[] defaultRandomGeneratorClasses 
 		= new Class[] {
 				Random64.class, 
@@ -65,6 +64,15 @@ public class MultiRandom extends ExtendedRandom {
 	 * internal state. used to select the next random number generator to use
 	 */
 	private transient int state = -1;
+	
+	private ExtendedRandom selectSource() {
+		
+		int index = (state % sources.length);
+		ExtendedRandom source = sources[index];
+		state ^= source.nextInt() & signMask;
+		return sources[index];
+		
+	}
 
 	/**
 	 * default constructor. Uses DEFAULT_SOURCES random number generators.
@@ -88,7 +96,7 @@ public class MultiRandom extends ExtendedRandom {
 	 * @param randoms
 	 */
 
-	public MultiRandom(byte[] seeds, Class<? extends Random>... randoms) {
+	public MultiRandom(byte[] seeds, Class<? extends ExtendedRandom>... randoms) {
 		
 		sources = new ExtendedRandom[randoms.length];
 		for (int i = 0; i < randoms.length; i++) {
@@ -127,7 +135,6 @@ public class MultiRandom extends ExtendedRandom {
 	 */
 	public MultiRandom(long seed) {
 		
-
 		this(longToByteArray(seed), defaultRandomGeneratorClasses);
 	}
 	
@@ -146,28 +153,9 @@ public class MultiRandom extends ExtendedRandom {
 		for (ExtendedRandom source : sources) {
 			source.setSeed(seed);
 		}
-		preRun();
 	}
 	
 	
-	/**
-	 * "spin up" the generators by filling in some initial values for the materials
-	 * 
-	 */
-	private void preRun() {
-		/*
-		 * initiate the system by pre-generating a run of numbers
-		 * n case the initial seeds are not very strong or several rngs have the
-		 * same seed.
-		 */
-		
-		final long initialRun = (state & 0xFFFF) + 1024 * sources.length;
-		for (int i = 0; i < initialRun; i++) {
-			this.nextInt();
-		}
-	}
-	
-
 	/**
 	 * seed seed with a single long
 	 * @param seed set the seed
@@ -175,22 +163,16 @@ public class MultiRandom extends ExtendedRandom {
 	 */
 	public void setSeed(final long seed) {
 		
-		if (sources == null) {
-			super.setSeed(seed);
-			return;
-		}
 		/*
 		 * select one of the sources to generate
 		 * seeds for the other sources
 		 */
-		state ^= Long.valueOf(seed).hashCode();
-		final int index = (int) ((state & signMask)  % sources.length);
-		final ExtendedRandom rand = sources[index];
+		final ExtendedRandom rand = selectSource();
 		
 		/*
 		 * set the seeds
 		 */
-		for (Random source : sources) {
+		for (ExtendedRandom source : sources) {
 			source.setSeed(rand.nextLong());
 		}
 		super.setSeed(seed);
@@ -202,19 +184,8 @@ public class MultiRandom extends ExtendedRandom {
 	 */
 	public final int nextInt() {
 		
-		final int index = (int) ((state & signMask)  % sources.length);
-		final int result = sources[index].nextInt();
-		state += result & signMask;
-		return result;
+		return selectSource().nextInt();
+
 	}
 	
-	/**
-	 * override of the next(bits) method
-	 * 
-	 * @param bits number of random bits to return
-	 */
-	protected int next(final int bits) {
-		return nextInt() >>> (32 - bits);
-		
-	}
 }

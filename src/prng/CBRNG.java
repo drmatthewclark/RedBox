@@ -37,8 +37,6 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class CBRNG extends ExtendedRandom {
 
-
-	private static final long serialVersionUID = -2718039215048818753L;
 	/*
 	 * specification of cipher used for encryption
 	 */
@@ -54,33 +52,12 @@ public class CBRNG extends ExtendedRandom {
 	/* use the standard Random class to increment counter */
 	private long counter = Long.MIN_VALUE;
 	
-	private byte[] seed = new byte[KEYLEN];
-	
-	// static IV. this shouldn't be a problem for this application. The values
-	// are changed by the setSeed function.
-	private static final byte[] initializationVector = 
-			{ -32, 31, 0, 54, 59, 120, 3, -17, 7, 9, 67, 45, -117, 53, -9, -107 };
-	
 	
 	CBRNG() {
 		
 	}
 
 	
-	/**
-	 * constructor with a seed and initialization vector
-	 * 
-	 * @param seed
-	 * @param initializationVector
-	 */
-	CBRNG(byte[] seed, byte[] initializationVector) {
-		
-		try {
-			cipher = getCipher(Cipher.ENCRYPT_MODE, seed, initializationVector);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * get the cipher for encryption.  This method sets the various parameters.
@@ -100,50 +77,28 @@ public class CBRNG extends ExtendedRandom {
 
 		final IvParameterSpec ivp = new IvParameterSpec(initializationVector);
 		final Cipher result = Cipher.getInstance(CIPHERSPEC);
-		final SecretKey key = new SecretKeySpec(keyValue, 0, KEYLEN, CIPHERSPEC.substring(0, CIPHERSPEC.indexOf("/")));
+		int keylen = Math.min(keyValue.length, KEYLEN);
+		final SecretKey key = new SecretKeySpec(keyValue, 0, keylen, CIPHERSPEC.substring(0, CIPHERSPEC.indexOf("/")));
 		result.init(opmode, key, ivp);
 
 		return result;
 	}
 
-	/**
-	 * set seed from long
-	 * @param long value for seed
-	 * 
-	 */
-	public void setSeed(long newSeed) {
-		setSeed(longToByteArray(newSeed));
-	}
-	
-	@Override
-	void setSeed(byte[] newSeed) {
-		
-		if (seed == null) seed = new byte[KEYLEN];
-		System.arraycopy(newSeed, 0, seed, 0, Math.min(seed.length, newSeed.length));
-		
-		// modify IV to be not equal for each reseed.
-		initializationVector[15] = newSeed[0];
-		
-		try {
-			// reinitialize cipher
-			cipher = getCipher(Cipher.ENCRYPT_MODE, seed, initializationVector);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(501);
-		} 
-	}
-
 
 
 	@Override
-	protected synchronized int next(int bits) {
+	public int nextInt() {
 		
 		byte[] result = new byte[8]; 
 		
 		try {
+			if (cipher == null) {
+				byte[] iv = new byte[16];
+				System.arraycopy(getSeed(), 0, iv, 0, Math.min(getSeed().length, 16));
+				cipher = getCipher(Cipher.ENCRYPT_MODE, iv, iv);
+			}
 			// use the seed as part of the encryption
-			cipher.update(seed);
+			cipher.update(getSeed());
 			// now add 8 bytes to the seed to create a unique result
 			cipher.update(longToByteArray(counter++));
 			// encrypt the total byte set.
@@ -153,7 +108,7 @@ public class CBRNG extends ExtendedRandom {
 			System.exit(10);
 		} 
 		
-		return (int) (bytesToLong(result) >> (64 - bits));
+		return bytesToInt(result);
 	}
 
 }

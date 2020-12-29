@@ -10,22 +10,17 @@ package prng;
  */
 public class Random64 extends ExtendedRandom {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3752716801248928524L;
+
 	private static final long multiplier = 0x5DEECE66DL;
 	private static final long addend = 0xBL;
 
 
-	/**
-	 * provide the next random bits
-	 * 
-	 * @param bits - requested bits, ranges from 1 to 32
-	 */
-	protected final int next(int bits) {
 
-		seed = seed * multiplier + addend;
-		return (int) (seed >>> (48 - bits));
+	public int nextInt() {
+		long s = seedToLong();
+		s *= multiplier + addend;
+		setSeed(s);
+		return (int)s;
+
 	}
 }

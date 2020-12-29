@@ -28,10 +28,6 @@ package prng;
  */
 public class BlumBlumShub extends ExtendedRandom {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3752716805248928524L;
 	// The 9,999,979,999th prime is 252,097,271,807.
 	// this does not use all 64 bits so the 'next' method will use the lower 32 bits.
 	private static final long M = 252097271807L * 518649336203L;
@@ -45,10 +41,11 @@ public class BlumBlumShub extends ExtendedRandom {
 	 * 
 	 * @param bits - requested bits, ranges from 1 to 32
 	 */
-	protected synchronized final int next(int bits) {
-
-		seed = (seed * seed) % M;
-		return (int) (seed >>> (48 - bits));
+	public int nextInt() {
+		long s  = seedToLong();
+		s = (s * s) % M;
+		setSeed(s);
+		return (int) (s >>> 16);
 	}
 
 }

@@ -11,8 +11,6 @@ package prng;
  */
 public class XORShift extends ExtendedRandom {
 
-	private static final long serialVersionUID = -3429778336651270452L;
-	
 	private long[] s;
 	private int p;
 	private static final int STATE_SIZE = 32;
@@ -24,24 +22,31 @@ public class XORShift extends ExtendedRandom {
 	 */
 	public void setSeed(final long newSeed) {
 		
+		setSeed(newSeed);
+		init();
+
+	}
+	
+
+	private void init() {
 		s = new long[STATE_SIZE];
-		seed = newSeed;
+		long sd = seedToLong();
 		/*
 		 * initialize with "standard" LC random numbers
 		 */
 		for (int i = 0; i < s.length; i++) {
-			seed = seed * 0x5DEECE66DL + 0xBL;
-			s[i] = seed;
+			sd = sd * 0x5DEECE66DL + 0xBL;
+			s[i] = sd;
 		}
+		
 	}
-	
-
 	/**
 	 * xorshift* from wikipedia!
 	 * 
 	 * @return next random in sequence
 	 */
 	private final long xorshift1024star() {
+		if (s == null) init();
 		long s0 = s[p];
 		long s1 = s[p = ( p + 1 ) & (STATE_SIZE - 1)];
 		s1 ^= s1 << 31; // a
@@ -55,8 +60,8 @@ public class XORShift extends ExtendedRandom {
 	 * 
 	 * @param bits - number of bits to return
 	 */
-	public final int next(final int bits) {
-		  return (int) (xorshift1024star() >>> (64 - bits)) ;
+	public final int nextInt() {
+		  return (int)xorshift1024star();
 	}
 
 }

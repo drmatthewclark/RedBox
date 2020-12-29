@@ -11,7 +11,6 @@ public class MultiplyWithCarry extends ExtendedRandom {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8752716801848928524L;
 	private static final long multiplier = 0xffffda61L;
 
 
@@ -21,10 +20,11 @@ public class MultiplyWithCarry extends ExtendedRandom {
 	 * 
 	 * @param bits - requested bits, ranges from 1 to 32
 	 */
-	protected final int next(int bits) {
-
-		seed = (multiplier * (seed & 0xffffffffL)) + (seed >>> 32);
-		return (int)(seed >>> (32 - bits));
+	public final int nextInt() {
+		long s = seedToLong();
+		s = (multiplier * (s & 0xffffffffL)) + (s >>> 32);
+		setSeed(s);
+		return (int)(s >>> 32);
 	}
 
 }

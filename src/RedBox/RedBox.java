@@ -55,7 +55,7 @@ public class RedBox extends JFrame implements ActionListener {
 	final String default_decrypt_extension = ".decrypt";
 	final String default_encrypt_extension = ".bin";
 	final String charset = "UTF-8";
-	final String RELEASEDATE = "26 Dec 2018";
+	final String RELEASEDATE = "29 Dec 2020";
 
 	
 	public static void main(String[] args) {

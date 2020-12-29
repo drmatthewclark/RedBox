@@ -85,7 +85,10 @@ public class RedBoxEngine {
 			final EncryptionKey randomKey = new EncryptionKey(blowfishKey);
 
 			if (command.equals(mode.ENCRYPT)) {
-
+				/*
+				 * inputstream -> aesCipher -> blowfishCipher -> randomCipher -> xorOutputStream
+				 * 
+				 */
 				final RandomCipherOutputStream xorOutputStream = new RandomCipherOutputStream(out, randomKey);
 				final OutputStream bf = blowfishCipher.getCipherOutputStream(xorOutputStream);
 				aesCipher.encrypt(in, bf);

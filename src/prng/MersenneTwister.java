@@ -159,12 +159,7 @@ import java.util.Arrays;
  */
 
 public class MersenneTwister extends ExtendedRandom {
-	// Serialization
-	private static final long serialVersionUID = -4035832775130174188L; // locked
-																		// as of
-																		// Version
-																		// 15
-
+	
 	// Period parameters
 	private static final int N = 624;
 	private static final int M = 397;
@@ -292,7 +287,7 @@ public class MersenneTwister extends ExtendedRandom {
 	/**
 	 * Returns an integer with <i>bits</i> bits filled with a random number.
 	 */
-	protected final int next(final int bits) {
+	public final int nextInt() {
 
 		int y;
 
@@ -324,7 +319,7 @@ public class MersenneTwister extends ExtendedRandom {
 		y ^= (y << 15) & TEMPERING_MASK_C; // TEMPERING_SHIFT_T(y)
 		y ^= (y >>> 18); // TEMPERING_SHIFT_L(y)
 
-		return y >>> (32 - bits); // hope that's right!
+		return y; // hope that's right!
 	}
 
 }

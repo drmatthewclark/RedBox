@@ -21,7 +21,6 @@ public class DigestRandom extends ExtendedRandom {
 	private static int stateMultiplier = 5;
 	private transient int index;
 
-	private static final long serialVersionUID = 5243129533368229178L;
 	
 	/**
 	 * constructor for digest
@@ -105,7 +104,7 @@ public class DigestRandom extends ExtendedRandom {
 	 * @param bits number of bits between 0 and 32
 	 * @return random integer composed of desired number of bits
 	 */
-	protected final int next(int bits) {
+	public final int nextInt() {
 		
 		final int val = 
 				  (nextByte() ) 
@@ -113,7 +112,7 @@ public class DigestRandom extends ExtendedRandom {
 				| (nextByte() << 16) 
 				| (nextByte() << 24) ;
 		
-		return val >>> (32 - bits);
+		return val;
 	}
 
 }
